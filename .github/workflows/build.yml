@@ -1,0 +1,34 @@
+name: Build Python 3.2.5
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential wget perl
+
+      - name: Run all build scripts
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/build-openssl.sh
+          ./scripts/build-gdbm.sh
+          ./scripts/build-python.sh
+
+      - name: Package output
+        run: |
+          cd $HOME/new/sysroot
+          sudo tar -cJf ${{ github.workspace }}/python-3.2.5.tar.xz .
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v1
+        with:
+          files: python-3.2.5.tar.xz

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+WRAPPER=$HOME/bin/wrapper
+
+mkdir -p win32
+
+echo "Executables:  *.exe"
+
+for exe in *.exe ; do
+    if [[ "${exe}" == "win32-"* ]] ;then
+        continue
+    fi
+    win32=win32/${exe}
+    if [ -f ${win32} ] ; then
+        echo "'${win32}' already exists -- retain it."
+    else
+        ( set -x && mv ${exe} ${win32} )
+    fi
+    ( set -x && cp ${WRAPPER} ${exe} )
+done
+
+echo "Shared libraries:  *.dll"
+
+for dll in *.dll ; do
+    win32=win32/${dll}
+    if [ -h ${win32} ] ; then
+        echo "'${win32}' already exists -- retain it."
+    else
+        ( set -x && ln -s ../${dll} ${win32} )
+    fi
+done
+
+echo "SUCCESS: Everything succeeded or already present"
