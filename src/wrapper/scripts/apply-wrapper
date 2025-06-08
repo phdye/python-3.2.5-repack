@@ -21,15 +21,4 @@ for exe in *.exe ; do
     ( set -x && cp ${WRAPPER} ${exe} )
 done
 
-echo "Shared libraries:  *.dll"
-
-for dll in *.dll ; do
-    win32=win32/${dll}
-    if [ -h ${win32} ] ; then
-        echo "'${win32}' already exists -- retain it."
-    else
-        ( set -x && ln -s ../${dll} ${win32} )
-    fi
-done
-
 echo "SUCCESS: Everything succeeded or already present"
