@@ -8,6 +8,7 @@
 #include <errno.h>      // For errno
 #include <ctype.h>      // For toupper()
 #include <sys/stat.h>   // For stat()
+#include "whereami.h"
 
 #define PROC_SELF_EXE             "/proc/self/exe"
 
@@ -100,7 +101,29 @@ void identity() {
                 exit(EXIT_FAILURE);
             }
         }
+}
+
+char * get_current_executable() {
+    char* path = NULL;
+    int length, dirname_length;
+    int i;
+  
+    length = wai_getExecutablePath(NULL, 0, &dirname_length);
+    if (length <= 0) {
+        return NULL;
     }
+
+    path = (char*)malloc(length + 1);
+    if (!path) {
+        fprintf(stderr,"wrapper:  Out of memory");
+        abort();
+    }
+
+    wai_getExecutablePath(path, length, &dirname_length);
+    path[length] = '\0';
+    
+    return path;
+}
 
 // Write command line to TRANSLATED_FILE
 void record_command_line(int argc, char *argv[]) {
@@ -131,7 +154,7 @@ int locate_target_executable(char *target_executable) {
         return 0; // Found <name>.exe
     }
 
-    // Step 4: Fatal error if no target is found
+    // Fatal error if no target is found
     fprintf(stderr, "Fatal Error: Could not locate a valid target executable for wrapped '%s'.\n",
         current_exe);
     return -1;

@@ -1,38 +1,17 @@
 # Paths
-NAME = wrapper
+NAME    = wrapper
 
-SHARED = libwrapper.so
+CFLAGS  = -I. -Wno-format-truncation -static
 
-CFLAGS=-Wno-format-truncation
+.PHONY: all clean install
 
-ALL = $(NAME) $(SHARED)
+all: $(NAME)
 
-.PHONY: all clean build wrapper
-
-all: $(ALL)
-
-# Build the C wrapper for rustc-cyg
-$(NAME):  $(NAME).c
-	$(CC) ${CFLAGS} -g -o $@ $^
+$(NAME): $(NAME).c whereami.c
+	$(CC) $(CFLAGS) -o $@ $^
 
 install: $(NAME)
-	cp $^ ~/bin/.
-	cp scripts/apply-win32-wrapper ~/scripts/.
-
-# -nostartfiles
-# -nodefaultlibs
-# -nostdlib
-CC_OPT= -fPIC --shared -nostartfiles
-# -nodefaultlibs
-
-# -Wl,-shared
-# -Wl,--allow-shlib-undefined
-LD_OPT= -Wl,-emain -Wl,--unresolved-symbols=ignore-all
-SH_OPT= -Wl,-shared -Wl,-rpath,/usr/bin -lcygwin
-
-$(SHARED): $(NAME).o
-	( gcc ${CC_OPT} $^ -o $@ ${LD_OPT} ${SH_OPT} 2>&1 ) | head -4
-	nm libwrapper.so | grep ' T ' | wc -l
+	install -Dm755 $^ $(DESTDIR)/usr/local/bin/$(NAME)
 
 clean:
-	rm -rf $(ALL) *.exe *.so *.a *.o *.s *.t
+	rm -f $(NAME) *.o
