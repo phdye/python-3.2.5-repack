@@ -1,24 +1,136 @@
-#!/bin/bash
+#!/usr/bin/env python3
+"""Apply wrapper to compiled executables.
 
-set -e
+Usage:
+  apply-wrapper [options] [DIRECTORY]
 
-WRAPPER=$HOME/bin/wrapper
+Options:
+  -w PATH, --wrapper PATH   Path to wrapper executable [default: ~/bin/wrapper]
+  -m, --require-magic       Require python-magic to determine binary type.
+  -h, --help                Show this help message.
+"""
+import argparse
+import os
+import shutil
+import sys
 
-mkdir -p win32
 
-echo "Executables:  *.exe"
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Apply wrapper to compiled executables.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=".",
+        help="Directory to scan [default: current directory]"
+    )
+    parser.add_argument(
+        "-w", "--wrapper",
+        default=os.path.expanduser("~/bin/wrapper"),
+        help="Path to wrapper executable"
+    )
+    parser.add_argument(
+        "-m", "--require-magic",
+        action="store_true",
+        help="Require python-magic to determine binary type"
+    )
+    return parser.parse_args()
 
-for exe in *.exe ; do
-    if [[ "${exe}" == "win32-"* ]] ;then
-        continue
-    fi
-    win32=win32/${exe}
-    if [ -f ${win32} ] ; then
-        echo "'${win32}' already exists -- retain it."
-    else
-        ( set -x && mv ${exe} ${win32} )
-    fi
-    ( set -x && cp ${WRAPPER} ${exe} )
-done
 
-echo "SUCCESS: Everything succeeded or already present"
+def is_executable(path):
+    return os.path.isfile(path) and os.access(path, os.X_OK)
+
+
+def check_magic(path):
+    try:
+        import magic
+    except ImportError as exc:
+        raise RuntimeError("python-magic not available") from exc
+
+    try:
+        mime = magic.from_file(path, mime=True)
+    except Exception:
+        return False
+
+    if not mime:
+        return False
+    if mime.startswith("text/") or "script" in mime:
+        return False
+    return True
+
+
+def check_header(path):
+    try:
+        with open(path, "rb") as f:
+            header = f.read(4)
+    except IOError:
+        return False
+    if header.startswith(b"\x7fELF"):
+        return True
+    if header.startswith(b"MZ"):
+        return True
+    if header in (b"\xcf\xfa\xed\xfe", b"\xfe\xed\xfa\xcf", b"\xfe\xed\xfa\xce", b"\xce\xfa\xed\xfe"):
+        return True
+    return False
+
+
+def is_compiled_binary(path, require_magic=False):
+    has_magic = False
+    try:
+        import magic  # noqa: F401
+        has_magic = True
+    except ImportError:
+        if require_magic:
+            raise RuntimeError("python-magic required but not available")
+
+    if has_magic:
+        try:
+            return check_magic(path)
+        except RuntimeError:
+            if require_magic:
+                raise
+    return check_header(path)
+
+
+def main():
+    args = parse_args()
+    directory = args.directory
+    wrapper = os.path.expanduser(args.wrapper)
+    require_magic = args.require_magic
+
+    if not os.path.isfile(wrapper):
+        sys.exit(f"Wrapper not found: {wrapper}")
+
+    dest_dir = os.path.join(directory, "win32")
+    os.makedirs(dest_dir, exist_ok=True)
+
+    entries = os.listdir(directory)
+    print("Scanning directory:", directory)
+    for name in entries:
+        if name.startswith("win32-"):
+            continue
+        path = os.path.join(directory, name)
+        if not is_executable(path):
+            continue
+        try:
+            if not is_compiled_binary(path, require_magic=require_magic):
+                continue
+        except RuntimeError as exc:
+            sys.exit(str(exc))
+        target = os.path.join(dest_dir, name)
+        if os.path.exists(target):
+            print(f"'{target}' already exists -- retain it.")
+        else:
+            print(f"Moving {path} -> {target}")
+            shutil.move(path, target)
+        print(f"Copying wrapper to {path}")
+        shutil.copy2(wrapper, path)
+
+    print("SUCCESS: Everything succeeded or already present")
+
+
+if __name__ == "__main__":
+    main()
