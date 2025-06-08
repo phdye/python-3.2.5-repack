@@ -20,9 +20,8 @@
 
 // populated by identity()
 char current_dir[PATH_MAX];
-char command_exe[PATH_MAX];
+char prefix[PATH_MAX];
 char current_exe[PATH_MAX];
-char exe_name_w_ext[PATH_MAX];
 char exe_name[PATH_MAX];
 char env_var_name[PATH_MAX];
 char env_var_pid[PATH_MAX];
@@ -32,6 +31,7 @@ int parent_pid = 0;
 
 void record_command_line(int argc, char *argv[]);
 void identity();
+void environment(char * prefix);
 int locate_target_executable(char *target_executable);
 int is_executable(const char *path);
 char *strtoupper(const char *str);
@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
     unbuffer(stdout); // continue even if it fails
 
     identity(); // exit on failure : realpath, setenv
+
+    environment(prefix);
 
     // Locate the target executable
     char target_executable[PATH_MAX];
@@ -69,39 +71,68 @@ int main(int argc, char *argv[]) {
 // Populate globals with program executable identity
 //
 void identity() {
-        // Get the path of the command executable
-        if (realpath(PROC_SELF_EXE, command_exe) == NULL) {
-            perrorf("realpath('%s') failed\n", PROC_SELF_EXE);
+
+    if (getcwd(current_dir, sizeof(current_dir)) != NULL) {
+        printf("Current working dir    :  '%s'\n", current_dir);
+    } else {
+        perror("getcwd() error");
+        abort();
+    }
+
+    // Get the path of the command executable
+    if (realpath(PROC_SELF_EXE, current_exe) == NULL) {
+        perrorf("realpath('%s') failed\n", PROC_SELF_EXE);
+        exit(EXIT_FAILURE);
+    }
+    printf("Current executable     :  '%s'\n", current_exe);
+
+    strncpy(exe_name, basename(current_exe), PATH_MAX);
+    printf("Executable basename    :  ''%s'\n", exe_name);
+
+    strncpy(prefix, dirname(dirname(current_exe)), PATH_MAX);
+    printf("Prefix                 :  '%s'\n", prefix);
+
+    snprintf(env_var_name, PATH_MAX, ENV_VAR_NAME_FMT, exe_name);
+    snprintf(env_var_pid, PATH_MAX, ENV_VAR_PID_FMT, env_var_name);
+
+    char *value = getenv(env_var_pid);
+    parent_pid = (value != NULL) ? atoi(value) : 0;
+
+    if (parent_pid < 0) {
+        // Set PID for child process
+        sprintf(env_var_pid_value, "%d", getpid());
+        if (setenv(env_var_pid, env_var_pid_value, 1) != 0) {
+            fprintf(stderr, "Error: setting environment variable '%s'\n", env_var_pid);
+            perror("setenv");
             exit(EXIT_FAILURE);
         }
-    
-        // Resolve it 'just in case'
-        if (realpath(command_exe, current_exe) == NULL) {
-            fprintf(stderr, "Error: realpath('%s') failed\n", command_exe);
-            perror("realpath");
-            exit(EXIT_FAILURE);
-        }
-    
-        strncpy(exe_name_w_ext, basename(current_exe), PATH_MAX);
-        strncpy(exe_name, exe_name_w_ext, PATH_MAX);
-        strip_extension(exe_name);
-    
-        snprintf(env_var_name, PATH_MAX, ENV_VAR_NAME_FMT, exe_name);
-        snprintf(env_var_pid, PATH_MAX, ENV_VAR_PID_FMT, env_var_name);
-    
-        char *value = getenv(env_var_pid);
-        parent_pid = (value != NULL) ? atoi(value) : 0;
-    
-        if (parent_pid < 0) {
-            // Set PID for child process
-            sprintf(env_var_pid_value, "%d", getpid());
-            if (setenv(env_var_pid, env_var_pid_value, 1) != 0) {
-                fprintf(stderr, "Error: setting environment variable '%s'\n", env_var_pid);
-                perror("setenv");
-                exit(EXIT_FAILURE);
-            }
-        }
+    }
 }
+
+void environment(char * prefix) {
+    char lib[PATH_MAX];
+    char *current_path, *new_path;
+    size_t size;
+
+    snprintf(lib, PATH_MAX, "%s/lib", prefix);
+
+    printf("Library                :  '%s'\n", lib);
+    current_path = getenv("LD_LIBRARY_PATH");
+
+    size = strlen(current_path) + strlen(lib) + 2 ;
+    new_path = (char*) malloc(size);
+    if (!new_path) {
+        fprintf(stderr,"wrapper:  Out of memory");
+        abort();
+    }
+    snprintf(new_path, size, "%s:%s", lib, current_path);
+
+    printf("LD_LIBRARY_PATH        :  '%s'\n", new_path);
+
+    setenv("LD_LIBRARY_PATH", new_path, 1);
+}
+
+// export LD_LIBRARY_PATH="$PREFIX/lib:$LD_LIBRARY_PATH"
 
 char * get_current_executable() {
     char* path = NULL;
@@ -148,9 +179,8 @@ int locate_target_executable(char *target_executable) {
     snprintf(subdir, sizeof(subdir), "%s/actual", current_dir);
 
     snprintf(candidate, sizeof(candidate), "%s/%s", subdir, exe_name);
-    printf("candidate: %s\n", candidate);
+    printf("Candidate              :  '%s'\n", candidate);
     if (realpath(candidate, target_executable) != NULL && is_executable(target_executable)) {
-        strip_extension(target_executable);
         return 0; // Found <name>.exe
     }
 
