@@ -39,7 +39,7 @@ static int wrapper_verbose = 0;
     } while (0)
 
 void identity(context_t * ctx);
-void environment(context_t * ctx);
+int environment(context_t * ctx);
 int locate_target_exe(context_t * ctx);
 
 int is_executable(const char *path);
@@ -60,7 +60,9 @@ int main(int argc, char *argv[]) {
 
     identity(&ctx); // exit on failure : realpath, setenv
 
-    environment(&ctx);
+    if (environment(&ctx) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    }
 
     // Locate the target executable
     if (locate_target_exe(&ctx) != EXIT_SUCCESS) {
@@ -143,7 +145,7 @@ int locate_target_exe(context_t* ctx) {
     return -1;
 }
 
-void environment(context_t * ctx) {
+int environment(context_t * ctx) {
     char lib[PATH_MAX];
     char *current_path, *new_path;
     size_t size;
@@ -152,19 +154,35 @@ void environment(context_t * ctx) {
 
     VERBOSE_PRINT("Library                :  '%s'\n", lib);
     current_path = getenv("LD_LIBRARY_PATH");
+    if (current_path == NULL) {
+        current_path = "";
+    }
 
-    size = strlen(current_path) + strlen(lib) + 2 ;
+    size = strlen(current_path) + strlen(lib) + 2;
     new_path = (char*) malloc(size);
     if (!new_path) {
-        fprintf(stderr,"wrapper:  Out of memory");
+        fprintf(stderr, "wrapper:  Out of memory");
         abort();
     }
     snprintf(new_path, size, "%s:%s", lib, current_path);
 
     VERBOSE_PRINT("LD_LIBRARY_PATH        :  '%s'\n", new_path);
 
-    setenv("LD_LIBRARY_PATH", new_path, 1);
-    setenv("PIP_DISABLE_PIP_VERSION_CHECK", "1", 1);
+    if (setenv("LD_LIBRARY_PATH", new_path, 1) != 0) {
+        fprintf(stderr, "Error: setting environment variable 'LD_LIBRARY_PATH'\n");
+        perror("setenv");
+        free(new_path);
+        return EXIT_FAILURE;
+    }
+    free(new_path);
+
+    if (setenv("PIP_DISABLE_PIP_VERSION_CHECK", "1", 1) != 0) {
+        fprintf(stderr, "Error: setting environment variable 'PIP_DISABLE_PIP_VERSION_CHECK'\n");
+        perror("setenv");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 // export LD_LIBRARY_PATH="$PREFIX/lib:$LD_LIBRARY_PATH"
