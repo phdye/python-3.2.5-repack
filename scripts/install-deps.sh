@@ -15,7 +15,7 @@ sudo apt install -y build-essential
 
 #----------------------------------------------------------------------------
 
-source ~/scripts/builder.sh
+source scripts/builder.sh
 
 # Compression and Security
 build zlib     1.2.13  https://zlib.net/fossils/zlib-1.2.13.tar.gz -xzf ""
