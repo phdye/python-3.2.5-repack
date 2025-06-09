@@ -125,6 +125,8 @@ function do-build() {
 
   echo "Building:  ${name} ${version} ${url} ${tarflags} ${config_flags}"
 
+  set -x
+
   cd "$BUILD/${srcdir}"
 
   if [[ -r Makefile ]]; then
@@ -151,9 +153,9 @@ function do-install() {
 
   cd "$BUILD/${srcdir}"
 
-  if [[ -x Configure && -r Makefile ]]; then
+  if [[ -x Configure ]]; then
     ${MAKE} PREFIX=${PREFIX} install_sw
-  elif [[ -x configure && -r Makefile ]]; then
+  elif [[ -x configure || -r Makefile ]]; then
     ${MAKE} PREFIX=${PREFIX} install
   else
     echo "No Makefile for $name — unable to build — aborting"
