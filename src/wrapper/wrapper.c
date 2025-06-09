@@ -43,6 +43,7 @@ void environment(context_t * ctx);
 int locate_target_exe(context_t * ctx);
 
 int is_executable(const char *path);
+/* Not thread-safe: uses a static return buffer */
 char *strtoupper(const char *str);
 void perrorf(char * fmt, ...);
 int unbuffer(FILE *fp);
@@ -210,10 +211,17 @@ int is_executable(const char *path) {
     return access(path, X_OK) == 0;
 }
 
+/*
+ * Convert a string to uppercase.
+ *
+ * Note: this function uses a static buffer for the return value and is
+ * therefore not thread-safe.
+ */
 char *strtoupper(const char *str) {
     static char buffer[PATH_MAX];
     char temp[PATH_MAX];
-    strcpy(temp, str);
+    strncpy(temp, str, PATH_MAX - 1);
+    temp[PATH_MAX - 1] = '\0';
 
     size_t len = strlen(temp);
     for (size_t i = 0; i < len; ++i) {
