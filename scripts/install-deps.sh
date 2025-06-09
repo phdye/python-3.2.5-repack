@@ -4,11 +4,6 @@ set -euo pipefail
 
 export BUILD_SUBJECT=python-deps
 
-export CFLAGS=
-export CPPFLAGS=
-export LDFLAGS=
-export LD_LIBRARY_PATH=
-
 #----------------------------------------------------------------------------
 
 sudo apt update
