@@ -15,10 +15,18 @@ Reproducible rebuild of Python 3.2.5 for Ubuntu 20.04 systems with statically li
 
 ## Binary Installation
 ```bash
-wget https://github.com/phdye/python-3.2.5-repack/releases/download/v3.2.5/python-3.2.5.tar.xz
-sudo tar -C /opt -xf python-3.2.5.tar.xz
+# Example for Ubuntu 20.04
+wget https://github.com/phdye/python-3.2.5-repack/releases/download/v3.2.5/python-3.2.5-ubuntu-20.04.tar.xz
+sudo tar -C /opt -xf python-3.2.5-ubuntu-20.04.tar.xz
 export PATH="/opt/python-3.2.5/bin:$PATH"
 ```
+You can also use the provided `install.sh` script:
+```bash
+./install.sh python-3.2.5-ubuntu-20.04.tar.xz
+```
+
+Artifacts are named `python-3.2.5-<os>.tar.xz`, where `<os>` matches
+the target platform (e.g., `ubuntu-22.04`).
 
 ## Use the Environment
 
