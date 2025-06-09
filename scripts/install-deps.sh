@@ -15,7 +15,7 @@ sudo apt update
 
 sudo apt upgrade
 
-sudo apt install -y build-essential
+sudo apt install -y build-essential libc6-dev
 
 #----------------------------------------------------------------------------
 
