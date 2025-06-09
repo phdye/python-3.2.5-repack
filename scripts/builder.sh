@@ -24,9 +24,10 @@ INSTALLED_DIR="$PREFIX/.installed"
 
 export MAKEFLAGS="-j$(nproc)"
 export PATH="$PREFIX/bin:$PATH"
-export CFLAGS="${CFLAGS} --sysroot=$PREFIX -O2 -fPIC"
+export CFLAGS="${CFLAGS} -O2 -fPIC"
 export CPPFLAGS="${CFLAGS} ${CPPFLAGS}"
-export LDFLAGS="${LDFLAGS} --sysroot=$PREFIX -Wl,-rpath,$PREFIX/lib -L$PREFIX/lib"
+export LDFLAGS="${LDFLAGS}"
+# -Wl,-rpath,$PREFIX/lib -L$PREFIX/lib"
 
 export MAKE="make"
 
