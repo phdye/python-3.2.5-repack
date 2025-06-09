@@ -99,19 +99,15 @@ void identity(context_t* ctx) {
     ctx->exe_name[PATH_MAX - 1] = '\0';
     VERBOSE_PRINT("Executable basename    :  '%s'\n", ctx->exe_name);
 
-    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
-
     strncpy(tmp_path, ctx->current_exe, PATH_MAX);
     strncpy(ctx->bin_dir, dirname(tmp_path), PATH_MAX - 1);
     ctx->bin_dir[PATH_MAX - 1] = '\0';
     VERBOSE_PRINT("Bin dir                :  '%s'\n", ctx->bin_dir);
-    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     strncpy(tmp_path, ctx->bin_dir, PATH_MAX);
     strncpy(ctx->prefix, dirname(tmp_path), PATH_MAX - 1);
     ctx->prefix[PATH_MAX - 1] = '\0';
     VERBOSE_PRINT("Prefix                 :  '%s'\n", ctx->prefix);
-    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     if (snprintf(ctx->env_var_name, PATH_MAX, ENV_VAR_NAME_FMT, ctx->exe_name) >= PATH_MAX) {
         fprintf(stderr, "Error: environment variable name truncated\n");
@@ -121,21 +117,6 @@ void identity(context_t* ctx) {
         fprintf(stderr, "Error: environment variable pid truncated\n");
         exit(EXIT_FAILURE);
     }
-
-    char *value = getenv(ctx->env_var_pid);
-    parent_pid = (value != NULL) ? atoi(value) : 0;
-
-    if (parent_pid < 0) {
-        // Set PID for child process
-        sprintf(ctx->env_var_pid_value, "%d", getpid());
-        if (setenv(ctx->env_var_pid, ctx->env_var_pid_value, 1) != 0) {
-            fprintf(stderr, "Error: setting environment variable '%s'\n", ctx->env_var_pid);
-            perror("setenv");
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 }
 
 int locate_target_exe(context_t* ctx) {
