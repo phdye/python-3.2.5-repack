@@ -8,6 +8,10 @@ Reproducible rebuild of Python 3.2.5 for Ubuntu 20.04 systems with statically li
 - Python 3.2.5
 - OpenSSL 1.0.2u
 - GDBM 1.23
+- site-packages
+  - pip 7.1.2
+  - wheel 0.29.0
+  - python-magic 1.2
 
 ## Binary Installation
 ```bash
@@ -15,6 +19,27 @@ wget https://github.com/phdye/python-3.2.5-repack/releases/download/v3.2.5/pytho
 sudo tar -C /opt -xf python-3.2.5.tar.xz
 export PATH="/opt/python-3.2.5/bin:$PATH"
 ```
+
+## Use the Environment
+
+### With the portable execution wrapper, just run Python normally:
+```bash
+export PATH=/opt/python-3.2.5/bin
+python3.2 ...
+```
+
+### Without the portable execution wrapper, one needed to setup the environment a bit more first :
+```bash
+export PATH=/opt/python-3.2.5/bin
+export LD_LIBRARY_PATH=/opt/python-3.2.5/lib
+python3.2 ...
+```
+
+## Minimal Package Support
+
+`pip` and `wheel` let one easily install wheels :  `python3.2 -m pip install <wheel-file>`
+
+With this ancient, long past end-of-life Python, please do expect this `pip` to generally be able to download and install packages.  Most often one needs to Google which version of a given package last worked with this version of Python, download the wheel and try it out.  If it doesn't work, go back a revision or two and try again.  And sometimes, one then has to correspondingly downgrade other packages to have a good working set.
 
 ## Build from Source
 ```bash
@@ -24,14 +49,9 @@ chmod +x scripts/*.sh
 ./scripts/build-openssl.sh
 ./scripts/build-gdbm.sh
 ./scripts/build-python.sh
+./scripts/populate-site-packages.sh
 ./scripts/apply-portable-executable-wrapper.sh
 ```
-
-## Use the Environment
-```bash
-scripts/with-env.sh python3.2
-```
-
 ## Notes
 - Requires: Ubuntu 20.04, standard build tools
 - No global interference with system Python
@@ -39,4 +59,4 @@ scripts/with-env.sh python3.2
 - Intended only for legacy support and migration workflows
 
 ## License
-MIT or similar
+MIT
