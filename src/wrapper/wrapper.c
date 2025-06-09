@@ -83,7 +83,6 @@ int main(int argc, char *argv[]) {
 //
 void identity(context_t* ctx) {
 
-    char parent[PATH_MAX];
     char tmp_path[PATH_MAX];
 
     // Get the path of the command executable
@@ -172,7 +171,6 @@ void environment(context_t * ctx) {
 char * get_current_executable() {
     char* path = NULL;
     int length, dirname_length;
-    int i;
   
     length = wai_getExecutablePath(NULL, 0, &dirname_length);
     if (length <= 0) {
