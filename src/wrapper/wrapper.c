@@ -93,18 +93,21 @@ void identity(context_t* ctx) {
     }
     VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
-    strncpy(ctx->exe_name, basename(ctx->current_exe), PATH_MAX);
+    strncpy(ctx->exe_name, basename(ctx->current_exe), PATH_MAX - 1);
+    ctx->exe_name[PATH_MAX - 1] = '\0';
     VERBOSE_PRINT("Executable basename    :  '%s'\n", ctx->exe_name);
 
     VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     strncpy(tmp_path, ctx->current_exe, PATH_MAX);
-    strncpy(ctx->bin_dir, dirname(tmp_path), PATH_MAX);
+    strncpy(ctx->bin_dir, dirname(tmp_path), PATH_MAX - 1);
+    ctx->bin_dir[PATH_MAX - 1] = '\0';
     VERBOSE_PRINT("Bin dir                :  '%s'\n", ctx->bin_dir);
     VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     strncpy(tmp_path, ctx->bin_dir, PATH_MAX);
-    strncpy(ctx->prefix, dirname(tmp_path), PATH_MAX);
+    strncpy(ctx->prefix, dirname(tmp_path), PATH_MAX - 1);
+    ctx->prefix[PATH_MAX - 1] = '\0';
     VERBOSE_PRINT("Prefix                 :  '%s'\n", ctx->prefix);
     VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
