@@ -58,7 +58,7 @@ function do-prep() {
   cd "$BUILD"
 
   local tarball="$(echo $url | sed -e 's:.*/::' )"
-  local archive="$ARCHIVE_DIR/${tarball}"
+  local archive="$ARCHIVE/${tarball}"
   [ ! -f ${archive} ] && curl -L -o ${archive} "$url"
   rm -rf ${srcdir}
   tar $tarflags ${archive}
