@@ -108,8 +108,14 @@ void identity(context_t* ctx) {
     VERBOSE_PRINT("Prefix                 :  '%s'\n", ctx->prefix);
     VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
-    snprintf(ctx->env_var_name, PATH_MAX, ENV_VAR_NAME_FMT, ctx->exe_name);
-    snprintf(ctx->env_var_pid, PATH_MAX, ENV_VAR_PID_FMT, ctx->env_var_name);
+    if (snprintf(ctx->env_var_name, PATH_MAX, ENV_VAR_NAME_FMT, ctx->exe_name) >= PATH_MAX) {
+        fprintf(stderr, "Error: environment variable name truncated\n");
+        exit(EXIT_FAILURE);
+    }
+    if (snprintf(ctx->env_var_pid, PATH_MAX, ENV_VAR_PID_FMT, ctx->env_var_name) >= PATH_MAX) {
+        fprintf(stderr, "Error: environment variable pid truncated\n");
+        exit(EXIT_FAILURE);
+    }
 
     char *value = getenv(ctx->env_var_pid);
     parent_pid = (value != NULL) ? atoi(value) : 0;
@@ -131,7 +137,10 @@ int locate_target_exe(context_t* ctx) {
 
     char candidate[PATH_MAX];
 
-    snprintf(candidate, sizeof(candidate), "%s/actual/%s", ctx->bin_dir, ctx->exe_name);
+    if (snprintf(candidate, sizeof(candidate), "%s/actual/%s", ctx->bin_dir, ctx->exe_name) >= sizeof(candidate)) {
+        fprintf(stderr, "Error: candidate path truncated\n");
+        return -1;
+    }
     VERBOSE_PRINT("Candidate              :  '%s'\n", candidate);
     if (realpath(candidate, ctx->target_exe) != NULL && is_executable(ctx->target_exe)) {
         return 0; // Found <name>.exe
@@ -148,7 +157,10 @@ void environment(context_t * ctx) {
     char *current_path, *new_path;
     size_t size;
 
-    snprintf(lib, PATH_MAX, "%s/lib", ctx->prefix);
+    if (snprintf(lib, PATH_MAX, "%s/lib", ctx->prefix) >= PATH_MAX) {
+        fprintf(stderr, "Error: library path truncated\n");
+        return;
+    }
 
     VERBOSE_PRINT("Library                :  '%s'\n", lib);
     current_path = getenv("LD_LIBRARY_PATH");
@@ -159,12 +171,17 @@ void environment(context_t * ctx) {
         fprintf(stderr,"wrapper:  Out of memory");
         abort();
     }
-    snprintf(new_path, size, "%s:%s", lib, current_path);
+    if (snprintf(new_path, size, "%s:%s", lib, current_path) >= size) {
+        fprintf(stderr, "Error: LD_LIBRARY_PATH construction truncated\n");
+        free(new_path);
+        return;
+    }
 
     VERBOSE_PRINT("LD_LIBRARY_PATH        :  '%s'\n", new_path);
 
     setenv("LD_LIBRARY_PATH", new_path, 1);
     setenv("PIP_DISABLE_PIP_VERSION_CHECK", "1", 1);
+    free(new_path);
 }
 
 // export LD_LIBRARY_PATH="$PREFIX/lib:$LD_LIBRARY_PATH"
@@ -214,7 +231,9 @@ void perrorf(char * fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
-    vsnprintf(buffer, PATH_MAX, fmt, args);
+    if (vsnprintf(buffer, PATH_MAX, fmt, args) >= PATH_MAX) {
+        fprintf(stderr, "Error: perror message truncated\n");
+    }
     perror(buffer);
     va_end(args);
 }
