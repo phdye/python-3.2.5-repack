@@ -24,6 +24,7 @@ chmod +x scripts/*.sh
 ./scripts/build-openssl.sh
 ./scripts/build-gdbm.sh
 ./scripts/build-python.sh
+./scripts/apply-portable-executable-wrapper.sh
 ```
 
 ## Use the Environment
