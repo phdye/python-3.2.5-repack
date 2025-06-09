@@ -5,10 +5,11 @@ Usage:
   apply-wrapper [options] [DIRECTORY]
 
 Options:
-  -w PATH, --wrapper PATH   Path to wrapper executable [default: ~/bin/wrapper]
-  -m, --require-magic       Require python-magic to determine binary type.
+  -w WRAP, --wrapper WRAP   Path to wrapper executable [default: ~/bin/wrapper]
+  -m, --magic               Require python-magic to determine binary type.
   -h, --help                Show this help message.
 """
+
 import argparse
 import os
 import shutil
@@ -104,14 +105,12 @@ def main():
     if not os.path.isfile(wrapper):
         sys.exit(f"Wrapper not found: {wrapper}")
 
-    dest_dir = os.path.join(directory, "win32")
+    dest_dir = os.path.join(directory, "actual")
     os.makedirs(dest_dir, exist_ok=True)
 
     entries = os.listdir(directory)
     print("Scanning directory:", directory)
     for name in entries:
-        if name.startswith("win32-"):
-            continue
         path = os.path.join(directory, name)
         if not is_executable(path):
             continue
