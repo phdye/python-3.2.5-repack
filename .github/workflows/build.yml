@@ -22,10 +22,7 @@ jobs:
       - name: Run all build scripts
         run: |
           chmod +x scripts/*.sh
-          ./scripts/build-openssl.sh
-          ./scripts/build-gdbm.sh
-          ./scripts/build-python.sh
-          ./scripts/populate-site-packages.sh
+          ./scripts/build-sysroot.sh
 
       - name: Package output
         run: |

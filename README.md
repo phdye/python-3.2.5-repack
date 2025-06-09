@@ -54,12 +54,18 @@ With this ancient, long past end-of-life Python, please do expect this `pip` to 
 git clone https://github.com/phdye/python-3.2.5-repack.git
 cd python-3.2.5-repack
 chmod +x scripts/*.sh
+./scripts/build-sysroot.sh
+```
+
+### Steps in `build-sysroot.sh`
+```
 ./scripts/build-openssl.sh
 ./scripts/build-gdbm.sh
 ./scripts/build-python.sh
 ./scripts/populate-site-packages.sh
 ./scripts/apply-portable-executable-wrapper.sh
 ```
+
 ## Notes
 - Requires: Ubuntu 20.04, standard build tools
 - No global interference with system Python
