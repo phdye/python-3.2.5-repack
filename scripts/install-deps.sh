@@ -6,11 +6,11 @@ export BUILD_SUBJECT=python-deps
 
 #----------------------------------------------------------------------------
 
-sudo apt update
+# sudo apt update
 
-sudo apt upgrade
+# sudo apt upgrade
 
-sudo apt install -y build-essential libc6-dev
+# sudo apt install -y build-essential libc6-dev
 
 #----------------------------------------------------------------------------
 
