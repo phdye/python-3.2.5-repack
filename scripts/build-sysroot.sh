@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eou pipefile
+set -eou pipefail
 
 export CFLAGS=
 export CPPFLAGS=
