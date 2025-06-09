@@ -26,8 +26,16 @@ export LDFLAGS="-L${PREFIX}/lib"
 export PATH="$PREFIX/bin:$PATH"
 export LD_LIBRARY_PATH="$PREFIX/lib:$LD_LIBRARY_PATH"
 
+echo "===== ===== ===== ===== ===== ===== ===== ===== "
+echo "===== ===== ===== ===== ===== ===== ===== ===== "
+echo "===== ===== ===== ===== ===== ===== ===== ===== "
+env
+echo "===== ===== ===== ===== ===== ===== ===== ===== "
+echo "===== ===== ===== ===== ===== ===== ===== ===== "
+echo "===== ===== ===== ===== ===== ===== ===== ===== "
+
 ./configure --prefix="$PREFIX" --enable-shared --with-system-ffi --disable-ipv6 \
-  CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 
 make -j"$(nproc)"
 make install
