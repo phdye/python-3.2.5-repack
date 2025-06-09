@@ -2,10 +2,11 @@
 set -euo pipefail
 
 PREFIX="/opt/python-3.2.5"
+TARBALL="${1:-python-3.2.5-ubuntu-20.04.tar.xz}"
 
-echo "Installing Python 3.2.5 to ${PREFIX}..."
+echo "Installing Python 3.2.5 to ${PREFIX} using $TARBALL..."
 sudo mkdir -p "$PREFIX"
-sudo tar -xf python-3.2.5.tar.xz -C /opt
+sudo tar -xf "$TARBALL" -C /opt
 
 echo ""
 echo "✅ Python 3.2.5 installed at $PREFIX"

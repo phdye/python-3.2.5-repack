@@ -7,7 +7,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
 
@@ -27,9 +30,9 @@ jobs:
       - name: Package output
         run: |
           cd $HOME/sysroot
-          sudo tar -cJf ${{ github.workspace }}/python-3.2.5.tar.xz .
+          sudo tar -cJf ${{ github.workspace }}/python-3.2.5-${{ matrix.os }}.tar.xz .
 
       - name: Upload binary
         uses: softprops/action-gh-release@v1
         with:
-          files: python-3.2.5.tar.xz
+          files: python-3.2.5-${{ matrix.os }}.tar.xz
