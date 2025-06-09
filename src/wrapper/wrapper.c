@@ -29,6 +29,14 @@ typedef struct {
 } context_t ;
 
 int parent_pid = 0;
+static int wrapper_verbose = 0;
+
+#define VERBOSE_PRINT(...)\
+    do {\
+        if (wrapper_verbose) {\
+            printf(__VA_ARGS__);\
+        }\
+    } while (0)
 
 void identity(context_t * ctx);
 void environment(context_t * ctx);
@@ -43,6 +51,9 @@ void strip_extension(char *str);
 int main(int argc, char *argv[]) {
 
     context_t ctx;
+
+    char *env = getenv("WRAPPER_VERBOSE");
+    wrapper_verbose = (env && atoi(env) != 0);
 
     // Make stdout unbuffered
     unbuffer(stdout); // continue even if it fails
@@ -80,22 +91,22 @@ void identity(context_t* ctx) {
         perrorf("realpath('%s') failed\n", PROC_SELF_EXE);
         exit(EXIT_FAILURE);
     }
-    printf("Current executable     :  '%s'\n", ctx->current_exe);
+    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     strncpy(ctx->exe_name, basename(ctx->current_exe), PATH_MAX);
-    printf("Executable basename    :  ''%s'\n", ctx->exe_name);
+    VERBOSE_PRINT("Executable basename    :  '%s'\n", ctx->exe_name);
 
-    printf("Current executable     :  '%s'\n", ctx->current_exe);
+    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     strncpy(tmp_path, ctx->current_exe, PATH_MAX);
     strncpy(ctx->bin_dir, dirname(tmp_path), PATH_MAX);
-    printf("Bin dir                :  ''%s'\n", ctx->bin_dir);
-    printf("Current executable     :  '%s'\n", ctx->current_exe);
+    VERBOSE_PRINT("Bin dir                :  '%s'\n", ctx->bin_dir);
+    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     strncpy(tmp_path, ctx->bin_dir, PATH_MAX);
     strncpy(ctx->prefix, dirname(tmp_path), PATH_MAX);
-    printf("Prefix                 :  '%s'\n", ctx->prefix);
-    printf("Current executable     :  '%s'\n", ctx->current_exe);
+    VERBOSE_PRINT("Prefix                 :  '%s'\n", ctx->prefix);
+    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 
     snprintf(ctx->env_var_name, PATH_MAX, ENV_VAR_NAME_FMT, ctx->exe_name);
     snprintf(ctx->env_var_pid, PATH_MAX, ENV_VAR_PID_FMT, ctx->env_var_name);
@@ -113,7 +124,7 @@ void identity(context_t* ctx) {
         }
     }
 
-    printf("Current executable     :  '%s'\n", ctx->current_exe);
+    VERBOSE_PRINT("Current executable     :  '%s'\n", ctx->current_exe);
 }
 
 int locate_target_exe(context_t* ctx) {
@@ -121,7 +132,7 @@ int locate_target_exe(context_t* ctx) {
     char candidate[PATH_MAX];
 
     snprintf(candidate, sizeof(candidate), "%s/actual/%s", ctx->bin_dir, ctx->exe_name);
-    printf("Candidate              :  '%s'\n", candidate);
+    VERBOSE_PRINT("Candidate              :  '%s'\n", candidate);
     if (realpath(candidate, ctx->target_exe) != NULL && is_executable(ctx->target_exe)) {
         return 0; // Found <name>.exe
     }
@@ -139,7 +150,7 @@ void environment(context_t * ctx) {
 
     snprintf(lib, PATH_MAX, "%s/lib", ctx->prefix);
 
-    printf("Library                :  '%s'\n", lib);
+    VERBOSE_PRINT("Library                :  '%s'\n", lib);
     current_path = getenv("LD_LIBRARY_PATH");
 
     size = strlen(current_path) + strlen(lib) + 2 ;
@@ -150,7 +161,7 @@ void environment(context_t * ctx) {
     }
     snprintf(new_path, size, "%s:%s", lib, current_path);
 
-    printf("LD_LIBRARY_PATH        :  '%s'\n", new_path);
+    VERBOSE_PRINT("LD_LIBRARY_PATH        :  '%s'\n", new_path);
 
     setenv("LD_LIBRARY_PATH", new_path, 1);
     setenv("PIP_DISABLE_PIP_VERSION_CHECK", "1", 1);
