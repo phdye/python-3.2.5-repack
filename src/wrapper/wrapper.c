@@ -164,7 +164,7 @@ int environment(context_t * ctx) {
 
     if (snprintf(lib, PATH_MAX, "%s/lib", ctx->prefix) >= PATH_MAX) {
         fprintf(stderr, "Error: library path truncated\n");
-        return;
+        return EXIT_FAILURE;
     }
 
     VERBOSE_PRINT("Library                :  '%s'\n", lib);
@@ -177,12 +177,12 @@ int environment(context_t * ctx) {
     new_path = (char*) malloc(size);
     if (!new_path) {
         fprintf(stderr, "wrapper:  Out of memory");
-        abort();
+        return EXIT_FAILURE;
     }
     if (snprintf(new_path, size, "%s:%s", lib, current_path) >= size) {
         fprintf(stderr, "Error: LD_LIBRARY_PATH construction truncated\n");
         free(new_path);
-        return;
+        return EXIT_FAILURE;
     }
 
     VERBOSE_PRINT("LD_LIBRARY_PATH        :  '%s'\n", new_path);
