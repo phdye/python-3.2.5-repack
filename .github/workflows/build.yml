@@ -23,6 +23,7 @@ jobs:
         run: |
           chmod +x scripts/*.sh
           ./scripts/build-sysroot.sh
+          ./scripts/smoke-test.sh
 
       - name: Package output
         run: |
