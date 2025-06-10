@@ -15,7 +15,7 @@ set -x
 
 git add -u
 ( set +e && git commit -m updates )
-( set +e && git push origin main )
+git push origin main
 
 tag=v0.2.${m}
 git tag ${tag}
