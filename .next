@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [ -z "$1" ] ; then
+    echo
+    echo "Usage:  ./.next <tag-minor>"
+    echo
+    exit 1
+fi
+
+m="$1"
+
+set -x
+
+git add -u
+git commit -m "Updates"
+git push main
+
+tag=v0.2.${m}
+git tag ${tag}
+git push origin ${tag}

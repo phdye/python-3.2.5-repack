@@ -7,14 +7,16 @@ export CPPFLAGS=
 export LDFLAGS=
 export LD_LIBRARY_PATH=
 
-./scripts/install-deps.sh
+./scripts/diagnose-env.sh
 
-./scripts/build-openssl.sh
+# ./scripts/install-deps.sh
 
-./scripts/build-gdbm.sh
+# ./scripts/build-openssl.sh
 
-./scripts/build-python.sh
+# ./scripts/build-gdbm.sh
 
-./scripts/populate-site-packages.sh
+# ./scripts/build-python.sh
 
-./scripts/apply-portable-executable-wrapper.sh
+# ./scripts/populate-site-packages.sh
+
+# ./scripts/apply-portable-executable-wrapper.sh

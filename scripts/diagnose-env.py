@@ -13,6 +13,8 @@ info = {
     "uname": run("uname -a"),
 }
 
+print("\n" + "=" * 80 + "\n\n")
+
 if os.path.exists('/etc/os-release'):
     info["os_release"] = open('/etc/os-release').read()
 
@@ -34,3 +36,5 @@ for binary in sys.argv[1:]:
     info[f'ldd_{binary}'] = run(f'ldd {binary}')
 
 print(json.dumps(info, indent=2))
+
+print("\n" + "=" * 80 + "\n\n")
