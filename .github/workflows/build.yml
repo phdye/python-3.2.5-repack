@@ -12,6 +12,8 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
+    name: Build for ${{ matrix.os }}
+    if: contains(github.ref, matrix.os)  # <- only run job if tag includes the OS name
     steps:
       - uses: actions/checkout@v3
 
