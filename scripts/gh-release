@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [[ -z "$1" || -z "$2" ]] ; then
+    echo
+    echo "Error:  Missing <version>, <os-name> or both."
+    echo
+    echo "Usage:  gh-release <version> <os-name>"
+    echo
+    echo "Manually release a Python 3.2.5 build in ~/sysroot."
+    echo
+    echo "Use it when the target OS isn't supported by Github Actions."
+    echo
+    echo "  <version> is the python-3.2.5-repack version, not the version of Python"
+    echo "  <os-name> is operating system name with version"
+    echo
+    echo "Example:"
+    echo
+    echo "  ./scripts/gh-release v1.1.0 Ubuntu-20.04"
+    echo
+    exit 1
+fi
+
+version="$1"
+osname_value="$2"
+osname=$(echo ${osname_value} | sed -e 's/^\(.\)/\u\1/')
+osname_lc=$(echo ${osname_value} | tr A-Z a-z)
+
+tag="${version}-${osname_lc}"
+
+if [ -z "$(git tag --list ${tag})" ] ; then
+    git tag -a ${tag} -m "Release Python 3.2.5 for ${osname}"
+    git push origin ${tag}
+fi
+
+gh release create ${tag} \
+  $HOME/archive/python-3.2.5.${osname_lc}.tar.xz \
+  --title "Python 3.2.5 ($osname)" \
+  --notes "Prebuilt binary of Python 3.2.5 for ${osname}"
