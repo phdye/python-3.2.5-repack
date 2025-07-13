@@ -34,7 +34,11 @@ if [ -z "$(git tag --list ${tag})" ] ; then
     git push origin ${tag}
 fi
 
+archive=$HOME/archive/python-3.2.5.${osname_lc}.${version}.tar.xz
+
+( cd ~/sysroot && tar cfJ ${archive} . )
+
 gh release create ${tag} \
-  $HOME/archive/python-3.2.5.${osname_lc}.${version}.tar.xz \
+  ${archive} \
   --title "Python 3.2.5 ($osname - Release ${version})" \
   --notes "Prebuilt binary of Python 3.2.5 for ${osname}"
