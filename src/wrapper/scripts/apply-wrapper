@@ -50,8 +50,8 @@ def contains_marker(path, marker=WRAPPER_MARKER_PREFIX):
         with open(path, "rb") as f:
             data = f.read()
         return marker in data
-    except IOError:
-        return False
+    except IOError as exc:
+        raise RuntimeError("Unable to read binary:  "+path) from exc
 
 
 def is_executable(path):
