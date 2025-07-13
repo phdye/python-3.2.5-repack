@@ -41,6 +41,18 @@ def parse_args():
     return parser.parse_args()
 
 
+WRAPPER_MARKER = b"PY_WRAPPER_v1"
+
+
+def contains_marker(path, marker=WRAPPER_MARKER):
+    try:
+        with open(path, "rb") as f:
+            data = f.read()
+        return marker in data
+    except IOError:
+        return False
+
+
 def is_executable(path):
     return os.path.isfile(path) and os.access(path, os.X_OK)
 
@@ -102,6 +114,23 @@ def main():
     wrapper = os.path.expanduser(args.wrapper)
     require_magic = args.require_magic
 
+    # Canonical wrapper path relative to this script
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    canonical_wrapper = os.path.join(script_dir, "..", "wrapper")
+
+    if os.path.isfile(canonical_wrapper):
+        if os.path.isfile(wrapper):
+            w_time = os.path.getmtime(wrapper)
+            c_time = os.path.getmtime(canonical_wrapper)
+            w_size = os.path.getsize(wrapper)
+            c_size = os.path.getsize(canonical_wrapper)
+            if (not os.path.samefile(wrapper, canonical_wrapper) and
+                    (c_time > w_time or c_size != w_size)):
+                print(f"Using newer wrapper from {canonical_wrapper}")
+                wrapper = canonical_wrapper
+        else:
+            wrapper = canonical_wrapper
+
     if not os.path.isfile(wrapper):
         sys.exit(f"Wrapper not found: {wrapper}")
 
@@ -120,11 +149,27 @@ def main():
         except RuntimeError as exc:
             sys.exit(str(exc))
         target = os.path.join(dest_dir, name)
+
+        if contains_marker(path):
+            # Existing wrapper binary
+            need_update = (
+                os.path.getsize(path) != os.path.getsize(wrapper)
+                or os.path.getmtime(wrapper) > os.path.getmtime(path)
+            )
+            if need_update:
+                print(f"Updating wrapper in {path}")
+                shutil.copy2(wrapper, path)
+            else:
+                print(f"'{path}' already wrapped")
+            continue
+
+        # Newly built executable
         if os.path.exists(target):
-            print(f"'{target}' already exists -- retain it.")
+            print(f"Replacing {target} with new executable")
+            os.remove(target)
         else:
             print(f"Moving {path} -> {target}")
-            shutil.move(path, target)
+        shutil.move(path, target)
         print(f"Copying wrapper to {path}")
         shutil.copy2(wrapper, path)
 

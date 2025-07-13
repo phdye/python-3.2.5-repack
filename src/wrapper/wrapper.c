@@ -30,6 +30,8 @@ typedef struct {
 
 int parent_pid = 0;
 static int wrapper_verbose = 0;
+/* Marker string embedded in the binary so scripts can detect wrappers */
+__attribute__((used)) static const char WRAPPER_MARKER[] = "PY_WRAPPER_v1";
 
 #define VERBOSE_PRINT(...)\
     do {\
