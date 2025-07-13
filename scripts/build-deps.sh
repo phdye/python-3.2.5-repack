@@ -22,7 +22,6 @@ build readline 8.2     https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz -xzf
     "--with-curses"
 LDFLAGS="${SAVE_LDFLAGS}"
 
-
 # Storage Backends
 build sqlite   3.45.3  https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -xzf ""
 build gdbm     1.23    https://ftp.gnu.org/gnu/gdbm/gdbm-1.23.tar.gz -xzf "--enable-libgdbm-compat"
