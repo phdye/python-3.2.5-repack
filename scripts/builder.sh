@@ -96,9 +96,9 @@ function do-config() {
     if ./configure --help 2>&1 | grep -q -- '--host='; then
       OPTS="${OPTS} --host=x86_64-pc-linux-gnu"
     fi
-    ./configure --prefix="$PREFIX" ${OPTS} $config_flags
+    ./configure --prefix="$PREFIX" ${OPTS} ${config_flags}
   elif [[ -x Configure ]]; then
-    ./Configure linux-x86_64 --prefix="$PREFIX" --openssldir="$PREFIX" $config_flags
+    ./Configure linux-x86_64 --prefix="$PREFIX" --openssldir="$PREFIX" ${config_flags}
     if egrep '^\s*depend\*s:' Makefile 2>&1 | grep -q -- 'depend'; then
       make clean || true
       make depend
