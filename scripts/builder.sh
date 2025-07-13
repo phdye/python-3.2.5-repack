@@ -27,7 +27,10 @@ export PATH="$PREFIX/bin:$PATH"
 export CFLAGS="${CFLAGS} -O2 -fPIC"
 export CPPFLAGS="${CFLAGS} ${CPPFLAGS}"
 # Embed a relative RPATH so binaries remain relocatable
-export LDFLAGS="-Wl,-rpath,\$ORIGIN/../lib -L${PREFIX}/lib ${LDFLAGS}"
+# Embed a literal "$ORIGIN" token so the resulting binaries have a
+# relocatable RPATH. A single backslash is consumed by the shell and the
+# double dollar is reduced to a single dollar by make.
+export LDFLAGS="-Wl,-rpath,\\\$\$ORIGIN/../lib -L${PREFIX}/lib ${LDFLAGS}"
 
 export MAKE="make"
 

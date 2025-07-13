@@ -21,7 +21,7 @@ tar -xzf "$TARBALL" -C "$SRC"
 cd "$SRC_DIR"
 
 CFLAGS="-fPIC -O2" \
-LDFLAGS="-Wl,-rpath,\$ORIGIN/../lib -L${PREFIX}/lib" \
+LDFLAGS="-Wl,-rpath,\\\$\$ORIGIN/../lib -L${PREFIX}/lib" \
     ./Configure linux-x86_64 --prefix="$PREFIX" --openssldir="$PREFIX/ssl" no-ssl2 no-ssl3 shared
 make -j"$(nproc)"
 make install_sw
