@@ -25,7 +25,7 @@ tar -xzf "$TARBALL" -C "$SRC"
 cd "$SRC_DIR"
 
 export CFLAGS="-fPIC -O2 -I${PREFIX}/include -DHAVE_MEMMOVE"
-export LDFLAGS="-L${PREFIX}/lib"
+export LDFLAGS="-Wl,-rpath,\$ORIGIN/../lib -L${PREFIX}/lib"
 export PATH="$PREFIX/bin:$PATH"
 export LD_LIBRARY_PATH="$PREFIX/lib:$LD_LIBRARY_PATH"
 

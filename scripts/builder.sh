@@ -26,8 +26,8 @@ export MAKEFLAGS="-j$(nproc)"
 export PATH="$PREFIX/bin:$PATH"
 export CFLAGS="${CFLAGS} -O2 -fPIC"
 export CPPFLAGS="${CFLAGS} ${CPPFLAGS}"
-export LDFLAGS="${LDFLAGS}"
-# -Wl,-rpath,$PREFIX/lib -L$PREFIX/lib"
+# Embed a relative RPATH so binaries remain relocatable
+export LDFLAGS="-Wl,-rpath,\$ORIGIN/../lib -L${PREFIX}/lib ${LDFLAGS}"
 
 export MAKE="make"
 
