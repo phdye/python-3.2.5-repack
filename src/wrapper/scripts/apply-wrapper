@@ -15,6 +15,10 @@ import os
 import shutil
 import sys
 
+# While the complete marker includes a version identifier, the prefix
+# alone identifies a binary as an instance of the wrapper.
+WRAPPER_MARKER_PREFIX = b"PY_WRAPPER_"
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -41,10 +45,7 @@ def parse_args():
     return parser.parse_args()
 
 
-WRAPPER_MARKER = b"PY_WRAPPER_v1"
-
-
-def contains_marker(path, marker=WRAPPER_MARKER):
+def contains_marker(path, marker=WRAPPER_MARKER_PREFIX):
     try:
         with open(path, "rb") as f:
             data = f.read()
