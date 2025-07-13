@@ -20,7 +20,7 @@ fi
 tar -xf "$TARBALL" -C "$SRC"
 cd "$SRC_DIR"
 
-./configure --prefix="$PREFIX" --enable-libgdbm-compat
+CFLAGS="-fPIC -O2" ./configure --prefix="$PREFIX" --enable-libgdbm-compat
 make -j"$(nproc)"
 make install
 
