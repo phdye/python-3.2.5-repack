@@ -50,20 +50,21 @@ echo
 echo "===== ===== ===== ===== ===== ===== ===== ===== "
 echo
 
-# ( set -x && make install )
+( set -x && make install )
 
-pushd ${PREFIX}/bin
+echo
 
+# Instead of multiple binaries, symlink all python* names to python3.2m
+
+cd ${PREFIX}/bin
 target=python3.2m
-if [ -x python3.2m ] ; then
+if [ -x ${target} ] ; then
     for suffix in "" 3 3.2 ; do
         name=python${suffix}
         rm -f ${name}
         ( set -x && ln -s ${target} ${name} )
     done
 fi
-
-popd
 
 echo
 echo "===== ===== ===== ===== ===== ===== ===== ===== "
