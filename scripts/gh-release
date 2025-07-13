@@ -30,11 +30,11 @@ osname_lc=$(echo ${osname_value} | tr A-Z a-z)
 tag="${version}-${osname_lc}"
 
 if [ -z "$(git tag --list ${tag})" ] ; then
-    git tag -a ${tag} -m "Release Python 3.2.5 for ${osname}"
+    git tag -a ${tag} -m "Release Python 3.2.5 for ${osname} ${version}"
     git push origin ${tag}
 fi
 
 gh release create ${tag} \
-  $HOME/archive/python-3.2.5.${osname_lc}.tar.xz \
-  --title "Python 3.2.5 ($osname)" \
+  $HOME/archive/python-3.2.5.${osname_lc}.${version}.tar.xz \
+  --title "Python 3.2.5 ($osname - Release ${version})" \
   --notes "Prebuilt binary of Python 3.2.5 for ${osname}"
