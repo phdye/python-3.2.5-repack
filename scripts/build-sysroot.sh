@@ -2,9 +2,10 @@
 
 set -eou pipefail
 
-export CFLAGS=
+export PREFIX=${HOME}/sysroot
+export CFLAGS=-I${PREFIX}/include
 export CPPFLAGS=
-export LDFLAGS=
+export LDFLAGS="-Wl,-rpath,\\\$\$ORIGIN/../lib -L${PREFIX}/lib"
 export LD_LIBRARY_PATH=
 
 # ./scripts/diagnose-env.sh
