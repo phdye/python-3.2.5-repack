@@ -50,7 +50,20 @@ echo
 echo "===== ===== ===== ===== ===== ===== ===== ===== "
 echo
 
-( set -x && make install )
+# ( set -x && make install )
+
+pushd ${PREFIX}/bin
+
+target=python3.2m
+if [ -x python3.2m ] ; then
+    for suffix in "" 3 3.2 ; do
+        name=python${suffix}
+        rm -f ${name}
+        ( set -x && ln -s ${target} ${name} )
+    done
+fi
+
+popd
 
 echo
 echo "===== ===== ===== ===== ===== ===== ===== ===== "
