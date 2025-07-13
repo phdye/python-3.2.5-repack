@@ -51,7 +51,7 @@ def contains_marker(path, marker=WRAPPER_MARKER_PREFIX):
             data = f.read()
         return marker in data
     except IOError as exc:
-        raise RuntimeError("Unable to read binary:  "+path) from exc
+        raise RuntimeError("Unable to read binary:  {0}".format(path)) from exc
 
 
 def is_executable(path):
@@ -127,13 +127,13 @@ def main():
             c_size = os.path.getsize(canonical_wrapper)
             if (not os.path.samefile(wrapper, canonical_wrapper) and
                     (c_time > w_time or c_size != w_size)):
-                print(f"Using newer wrapper from {canonical_wrapper}")
+                print("Using newer wrapper from {0}".format(canonical_wrapper))
                 wrapper = canonical_wrapper
         else:
             wrapper = canonical_wrapper
 
     if not os.path.isfile(wrapper):
-        sys.exit(f"Wrapper not found: {wrapper}")
+        sys.exit("Wrapper not found: {0}".format(wrapper))
 
     dest_dir = os.path.join(directory, "actual")
     os.makedirs(dest_dir, exist_ok=True)
@@ -158,20 +158,20 @@ def main():
                 or os.path.getmtime(wrapper) > os.path.getmtime(path)
             )
             if need_update:
-                print(f"Updating wrapper in {path}")
+                print("Updating wrapper in {0}".format(path))
                 shutil.copy2(wrapper, path)
             else:
-                print(f"'{path}' already wrapped")
+                print("'{0}' already wrapped".format(path))
             continue
 
         # Newly built executable
         if os.path.exists(target):
-            print(f"Replacing {target} with new executable")
+            print("Replacing {0} with new executable".format(target))
             os.remove(target)
         else:
-            print(f"Moving {path} -> {target}")
+            print("Moving {0} -> {1}".format(path, target))
         shutil.move(path, target)
-        print(f"Copying wrapper to {path}")
+        print("Copying wrapper to {0}".format(path))
         shutil.copy2(wrapper, path)
 
     print("SUCCESS: Everything succeeded or already present")
