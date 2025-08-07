@@ -10,7 +10,7 @@ sudo apt update
 
 sudo apt upgrade -y
 
-sudo apt install -y build-essential libc6-dev
+sudo apt install -y build-essential libc6-dev patchelf
 
 #----------------------------------------------------------------------------
 
