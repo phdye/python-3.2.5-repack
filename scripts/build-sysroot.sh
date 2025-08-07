@@ -23,3 +23,11 @@ export LD_LIBRARY_PATH=
 ./scripts/build-python.sh
 
 ./scripts/populate-site-packages.sh
+
+# Ensure the resulting toolchain is fully relocatable by rewriting
+# RPATH entries to use paths relative to each binary's location.
+find "$PREFIX" -type f -print0 | while IFS= read -r -d '' file; do
+  if file "$file" | grep -q ELF; then
+    patchelf --set-rpath '$ORIGIN/../lib' "$file" 2>/dev/null || true
+  fi
+done
